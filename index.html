@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>IJECT Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+/* ===================== TOKENS ===================== */
+:root{
+  --cream: #FAF7F0;
+  --cream-2: #F1ECE1;
+  --ink: #1C1B18;
+  --ink-soft: #55524A;
+  --violet: #4C3AED;
+  --violet-deep: #372AB0;
+  --gold: #C9A961;
+  --line: rgba(28,27,24,0.10);
+  --radius: 14px;
+  --font-fa: 'Vazirmatn', sans-serif;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --ease: cubic-bezier(.16,.84,.44,1);
+}
+
+*{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+button:focus,button:focus-visible,
+.btn:focus,.btn:focus-visible,
+a:focus,a:focus-visible,
+[class*="card"]:focus,[class*="card"]:focus-visible,
+.lang-pill:focus,.lang-pill:focus-visible,
+.auth-btn:focus,.auth-btn:focus-visible{
+  outline:none;
+  box-shadow:none;
+}
+body{
+  background:var(--cream);
+  color:var(--ink);
+  font-family:var(--font-fa);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+html[data-lang="en"] body{ font-family: var(--font-display), sans-serif; }
+
+button{font-family:inherit; cursor:pointer; border:none; background:none;}
+input,select{font-family:inherit;}
+a{color:inherit; text-decoration:none;}
+
+::selection{ background:var(--violet); color:#fff; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.01ms !important; transition-duration:0.01ms !important; scroll-behavior:auto !important; }
+}
+
+/* ===================== TOPBAR ===================== */
+.topbar{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  padding:18px 28px;
+  transition: background .3s var(--ease), backdrop-filter .3s var(--ease);
+}
+.topbar.scrolled{
+  background:rgba(250,247,240,0.82);
+  backdrop-filter: blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar-inner{
+  max-width:1280px; margin:0 auto;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
+  gap:14px;
+}
+.topbar-inner .brand{ justify-self:start; }
+.topbar-inner .lang-pill{ justify-self:center; }
+.topbar-inner .topbar-actions{ justify-self:end; }
+.brand{
+  font-family: var(--font-display);
+  font-weight:700; font-size:19px; letter-spacing:0.02em;
+  color:var(--ink);
+}
+.brand-dot{ color:var(--violet); font-weight:500; }
+
+.topbar-actions{ display:flex; align-items:center; gap:14px; }
+
+.lang-pill{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:3px;
+  display:flex;
+  position:relative;
+  overflow:hidden;
+}
+.lang-pill-track{ display:flex; position:relative; z-index:2; }
+.lang-pill-option{
+  padding:6px 13px;
+  font-size:12px;
+  font-weight:600;
+  border-radius:999px;
+  color:var(--ink-soft);
+  transition: color .45s var(--ease);
+  white-space:nowrap;
+  width:50%;
+  text-align:center;
+}
+.lang-pill-option.active{ color:#fff; }
+.lang-pill::before{
+  content:"";
+  position:absolute;
+  top:3px; bottom:3px;
+  left:3px;
+  width:calc(50% - 3px);
+  background:var(--violet);
+  border-radius:999px;
+  transition: left .55s var(--ease), right .55s var(--ease);
+  z-index:1;
+  will-change: left, right;
+}
+.lang-pill.lang-is-second::before{ left:calc(50% + 0px); }
+html[dir="rtl"] .lang-pill::before{ left:auto; right:3px; }
+html[dir="rtl"] .lang-pill.lang-is-second::before{ right:calc(50% + 0px); left:auto; }
+
+.auth-btn{
+  background:var(--ink);
+  color:var(--cream);
+  padding:9px 20px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  transition: background .2s var(--ease), transform .2s var(--ease);
+}
+.auth-btn:hover{ background:var(--violet); transform:translateY(-1px); }
+
+/* ===================== HERO ===================== */
+.hero{
+  min-height:100vh;
+  display:flex; flex-direction:column; justify-content:center;
+  padding:120px 28px 60px;
+  position:relative;
+}
+.hero-grid{
+  max-width:1280px; margin:0 auto;
+  display:grid; grid-template-columns:1.1fr 1fr; gap:64px;
+  align-items:center;
+  width:100%;
+}
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:0.08em;
+  color:var(--violet);
+  text-transform:uppercase;
+  margin-bottom:14px;
+  font-weight:500;
+}
+html[data-lang="fa"] .eyebrow{ text-transform:none; letter-spacing:0.01em; }
+.eyebrow.center{ text-align:center; }
+
+.hero-title{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:clamp(38px, 5vw, 64px);
+  line-height:1.12;
+  letter-spacing:-0.01em;
+  margin-bottom:22px;
+}
+html[data-lang="fa"] .hero-title{ font-family:var(--font-fa); font-weight:800; }
+
+.hero-sub{
+  font-size:17px;
+  line-height:1.7;
+  color:var(--ink-soft);
+  max-width:480px;
+  margin-bottom:34px;
+}
+.hero-ctas{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+
+.btn{
+  padding:14px 28px;
+  border-radius:999px;
+  font-size:15px;
+  font-weight:600;
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease), background .2s var(--ease);
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn-primary{
+  background:var(--violet);
+  color:#fff;
+  box-shadow:0 8px 24px -8px rgba(76,58,237,0.5);
+}
+.btn-primary:hover{ transform:translateY(-2px); box-shadow:0 12px 28px -8px rgba(76,58,237,0.6); }
+.btn-ghost{
+  color:var(--ink);
+  border:1.5px solid var(--line);
+  background:transparent;
+}
+.btn-ghost:hover{ border-color:var(--ink); }
+.btn-large{ padding:18px 40px; font-size:17px; }
+.btn-full{ width:100%; justify-content:center; margin-top:8px; }
+.btn:disabled{ opacity:0.6; cursor:not-allowed; transform:none !important; }
+
+/* terminal */
+.hero-media{ display:flex; justify-content:center; }
+.terminal{
+  background:var(--ink);
+  border-radius:16px;
+  width:100%; max-width:440px;
+  box-shadow:0 30px 60px -20px rgba(28,27,24,0.35);
+  overflow:hidden;
+  transform: rotate(1.2deg);
+}
+.terminal-bar{
+  display:flex; align-items:center; gap:8px;
+  padding:14px 16px;
+  background:rgba(255,255,255,0.04);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.dot{ width:10px; height:10px; border-radius:50%; }
+.dot-r{ background:#EF6155; } .dot-y{ background:#F9C859; } .dot-g{ background:#48B685; }
+.terminal-title{
+  font-family:var(--font-mono);
+  font-size:12px;
+  color:rgba(255,255,255,0.4);
+  margin-inline-start:8px;
+}
+.terminal-body{
+  padding:22px 20px;
+  font-family:var(--font-mono);
+  font-size:13.5px;
+  line-height:2;
+  color:#D9D6CC;
+  min-height:220px;
+  direction:ltr;
+  text-align:left;
+}
+.terminal-body .line-prompt{ color:#7CDBA8; }
+.terminal-body .line-comment{ color:#8A867B; }
+.terminal-body .cursor{
+  display:inline-block; width:7px; height:15px;
+  background:var(--gold);
+  margin-inline-start:2px;
+  animation: blink 1s step-end infinite;
+  vertical-align:middle;
+}
+@keyframes blink{ 50%{ opacity:0; } }
+
+.scroll-cue{
+  position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+  width:22px; height:36px; border:1.5px solid var(--line); border-radius:12px;
+  display:flex; justify-content:center; padding-top:6px;
+}
+.scroll-cue span{
+  width:4px; height:8px; background:var(--ink-soft); border-radius:2px;
+  animation: scrollcue 1.6s ease infinite;
+}
+@keyframes scrollcue{
+  0%{ opacity:1; transform:translateY(0); }
+  70%{ opacity:0; transform:translateY(10px); }
+  100%{ opacity:0; }
+}
+
+/* ===================== FEATURE ROWS ===================== */
+.feature-row{
+  max-width:1280px; margin:0 auto;
+  padding:100px 28px;
+  display:grid; grid-template-columns:1fr 1fr; gap:72px;
+  align-items:center;
+  opacity:0; transform:translateY(36px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+.feature-row.revealed{ opacity:1; transform:translateY(0); }
+/* Alternate media/text sides regardless of document direction, using explicit order */
+.feature-row .feature-text{ order:1; }
+.feature-row .feature-media{ order:2; }
+.feature-row.reverse .feature-text{ order:2; }
+.feature-row.reverse .feature-media{ order:1; }
+
+.feature-text h2{
+  font-family:var(--font-display);
+  font-size:clamp(26px,3vw,36px);
+  font-weight:700;
+  line-height:1.3;
+  margin-bottom:18px;
+  max-width:480px;
+}
+html[data-lang="fa"] .feature-text h2{ font-family:var(--font-fa); font-weight:800; }
+.feature-text p{
+  font-size:16px;
+  line-height:1.85;
+  color:var(--ink-soft);
+  max-width:460px;
+}
+
+.feature-media{ display:flex; justify-content:center; }
+.mock{
+  width:100%; max-width:420px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:26px;
+  box-shadow:0 20px 44px -24px rgba(28,27,24,0.18);
+}
+
+.mock-design .mock-swatch{ height:14px; border-radius:6px; margin-bottom:10px; width:60%; }
+.mock-design .mock-swatch:nth-child(2){ width:80%; }
+.mock-design .mock-swatch:nth-child(3){ width:40%; }
+.mock-lines{ margin-top:18px; }
+.mock-lines span{ display:block; height:8px; background:var(--cream-2); border-radius:4px; margin-bottom:9px; }
+
+.mock-code{ background:var(--ink); color:#D9D6CC; font-family:var(--font-mono); font-size:13px; direction:ltr; text-align:left; }
+.mock-code-line{ margin-bottom:10px; }
+.tok-kw{ color:#C58AF9; } .tok-var{ color:#7CDBA8; } .tok-fn{ color:#68B0F9; } .tok-str{ color:#F9C859; }
+.mock-code-comment{ color:#6E6A60; }
+.mock-progress{ height:5px; background:rgba(255,255,255,0.08); border-radius:3px; margin-top:16px; overflow:hidden; }
+.mock-progress-bar{ height:100%; width:0%; background:var(--gold); border-radius:3px; transition:width 1.4s var(--ease); }
+.feature-row.revealed .mock-progress-bar{ width:78%; }
+
+.mock-chat{ display:flex; flex-direction:column; gap:10px; }
+.mock-bubble{ padding:11px 15px; border-radius:14px; font-size:14px; max-width:82%; line-height:1.5; }
+.mock-bubble-ai{ background:var(--cream-2); align-self:flex-start; border-end-start-radius:4px; }
+.mock-bubble-user{ background:var(--violet); color:#fff; align-self:flex-end; border-end-end-radius:4px; }
+
+.mock-price-row{ display:flex; justify-content:space-between; font-size:14.5px; padding:10px 0; border-bottom:1px dashed var(--line); font-family:var(--font-mono); }
+.mock-price-total{ display:flex; justify-content:space-between; font-size:15.5px; font-weight:700; padding-top:14px; font-family:var(--font-mono); }
+.strike{ position:relative; color:var(--ink-soft); }
+.strike::after{
+  content:""; position:absolute; left:0; right:0; top:50%;
+  height:2px; background:#C0473F;
+  transform:scaleX(0); transform-origin:left;
+  transition: transform .6s var(--ease) .3s;
+}
+.feature-row.revealed .strike::after{ transform:scaleX(1); }
+
+.mock-doc{ font-family:var(--font-display); text-align:center; }
+.mock-doc-header{ font-weight:700; font-size:16px; margin-bottom:18px; }
+.mock-doc-line{ height:8px; background:var(--cream-2); border-radius:4px; margin:10px auto; }
+.mock-doc-badge{ display:inline-block; margin-top:16px; background:var(--gold); color:var(--ink); font-size:12px; font-weight:700; padding:6px 14px; border-radius:999px; }
+
+/* ===================== WHY US ===================== */
+.why-us{ max-width:1120px; margin:0 auto; padding:80px 28px 100px;
+  opacity:0; transform:translateY(36px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.why-us.revealed{ opacity:1; transform:translateY(0); }
+.why-us h2.center{ font-family:var(--font-display); font-size:clamp(26px,3vw,34px); font-weight:700; text-align:center; margin-bottom:52px; }
+html[data-lang="fa"] .why-us h2.center{ font-family:var(--font-fa); font-weight:800; }
+.why-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:24px; }
+.why-card{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:26px 22px; }
+.why-card h3{ font-size:16px; font-weight:700; margin-bottom:10px; }
+.why-card p{ font-size:14px; line-height:1.7; color:var(--ink-soft); }
+
+/* ===================== FINAL CTA ===================== */
+.final-cta{
+  text-align:center; padding:120px 28px;
+  opacity:0; transform:translateY(36px); transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+.final-cta.revealed{ opacity:1; transform:translateY(0); }
+.final-cta h2{ font-family:var(--font-display); font-size:clamp(30px,4vw,46px); font-weight:700; margin-bottom:36px; }
+html[data-lang="fa"] .final-cta h2{ font-family:var(--font-fa); font-weight:800; }
+
+.footer{ text-align:center; padding:32px 28px 48px; color:var(--ink-soft); font-size:13px; }
+.footer-sep{ margin:0 8px; }
+
+/* ===================== MODALS ===================== */
+.modal-overlay{
+  position:fixed; inset:0; z-index:1000;
+  background:rgba(28,27,24,0.45);
+  backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px;
+  opacity:0; visibility:hidden;
+  transition: opacity .3s var(--ease), visibility .3s var(--ease);
+}
+.modal-overlay.open{ opacity:1; visibility:visible; }
+.modal{
+  background:var(--cream);
+  border-radius:20px;
+  padding:36px;
+  width:100%; max-width:480px;
+  max-height:88vh; overflow-y:auto;
+  position:relative;
+  transform:scale(0.94) translateY(12px);
+  transition: transform .35s var(--ease);
+  box-shadow:0 40px 80px -20px rgba(28,27,24,0.35);
+}
+.modal-overlay.open .modal{ transform:scale(1) translateY(0); }
+.modal-close{
+  position:absolute; top:18px; inset-inline-end:18px;
+  width:32px; height:32px; border-radius:50%;
+  background:var(--cream-2);
+  font-size:20px; line-height:1;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--ink-soft);
+  transition: background .2s var(--ease);
+}
+.modal-close:hover{ background:var(--line); }
+.modal h2{ font-family:var(--font-display); font-size:23px; font-weight:700; margin-bottom:6px; }
+html[data-lang="fa"] .modal h2{ font-family:var(--font-fa); font-weight:800; }
+.modal-sub{ color:var(--ink-soft); font-size:14px; margin-bottom:26px; }
+
+.field-row{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.field{ margin-bottom:16px; }
+.field label{ display:block; font-size:13px; font-weight:600; margin-bottom:7px; color:var(--ink-soft); }
+.field input, .field select{
+  width:100%; padding:12px 14px;
+  border:1.5px solid var(--line);
+  border-radius:10px;
+  font-size:14.5px;
+  background:#fff;
+  transition: border-color .2s var(--ease);
+}
+.field input:focus, .field select:focus{
+  outline:none; border-color:var(--violet);
+}
+.field input.invalid, .field select.invalid{ border-color:#C0473F; }
+.field-error{
+  display:block; font-size:12.5px; color:#C0473F; margin-top:5px; min-height:16px;
+}
+.date-row{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.date-input-en{ width:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:10px; font-size:14.5px; background:#fff; }
+
+.auth-loading{ display:none; flex-direction:column; align-items:center; gap:18px; padding:40px 0; text-align:center; }
+.auth-loading.show{ display:flex; }
+.spinner{
+  width:44px; height:44px; border-radius:50%;
+  border:3px solid var(--line); border-top-color:var(--violet);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+#authForm.hide{ display:none; }
+
+/* ===================== WIZARD ===================== */
+.wizard-modal{ max-width:560px; }
+.wizard-progress{ height:4px; background:var(--cream-2); border-radius:3px; margin-bottom:28px; overflow:hidden; }
+.wizard-progress-bar{ height:100%; background:var(--violet); border-radius:3px; transition: width .4s var(--ease); width:0%; }
+
+.wizard-step{ animation: fadein .4s var(--ease); }
+@keyframes fadein{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+.wizard-step h2{ font-family:var(--font-display); font-size:22px; font-weight:700; margin-bottom:8px; }
+html[data-lang="fa"] .wizard-step h2{ font-family:var(--font-fa); font-weight:800; }
+.wizard-step .wizard-sub{ color:var(--ink-soft); font-size:14px; margin-bottom:26px; }
+
+.option-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+.option-card{
+  border:1.5px solid var(--line); border-radius:12px;
+  padding:18px 16px; text-align:start;
+  background:#fff;
+  transition: border-color .2s var(--ease), transform .15s var(--ease), background .2s var(--ease);
+}
+.option-card:hover{ transform:translateY(-2px); border-color:var(--violet); }
+.option-card.selected{ border-color:var(--violet); background:rgba(76,58,237,0.06); }
+.option-card .icon{ font-size:22px; margin-bottom:8px; display:block; }
+.option-card .label{ font-weight:700; font-size:14.5px; margin-bottom:4px; display:block; }
+.option-card .desc{ font-size:12.5px; color:var(--ink-soft); }
+
+.qty-stepper{ display:flex; align-items:center; gap:16px; margin-bottom:22px; }
+.qty-btn{
+  width:40px; height:40px; border-radius:50%; border:1.5px solid var(--line);
+  font-size:18px; font-weight:700; background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  transition: border-color .2s var(--ease);
+}
+.qty-btn:hover{ border-color:var(--violet); }
+.qty-value{ font-family:var(--font-mono); font-size:20px; font-weight:600; min-width:60px; text-align:center; }
+
+.radio-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+.radio-item{
+  display:flex; align-items:center; gap:12px;
+  border:1.5px solid var(--line); border-radius:10px; padding:14px 16px;
+  transition: border-color .2s var(--ease);
+}
+.radio-item.selected{ border-color:var(--violet); background:rgba(76,58,237,0.06); }
+.radio-item input{ accent-color:var(--violet); width:16px; height:16px; }
+.radio-item label{ flex:1; font-size:14.5px; cursor:pointer; }
+
+.wizard-nav{ display:flex; justify-content:space-between; gap:12px; margin-top:8px; }
+.wizard-nav .btn-ghost{ padding:12px 22px; }
+
+.summary-box{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:20px; margin-bottom:20px; }
+.summary-row{ display:flex; justify-content:space-between; padding:9px 0; font-size:14px; border-bottom:1px dashed var(--line); }
+.summary-row:last-child{ border-bottom:none; }
+.summary-row .val{ font-family:var(--font-mono); font-weight:600; }
+
+.price-breakdown{ background:#fff; border-radius:12px; border:1px solid var(--line); padding:22px; margin-bottom:20px; }
+.price-line{ display:flex; justify-content:space-between; padding:10px 0; font-size:14.5px; border-bottom:1px dashed var(--line); font-family:var(--font-mono); }
+.price-line:last-of-type{ border-bottom:none; }
+.price-total-row{ display:flex; justify-content:space-between; align-items:baseline; margin-top:14px; padding-top:16px; border-top:2px solid var(--ink); }
+.price-total-label{ font-size:15px; font-weight:700; }
+.price-total-value{ font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--violet); }
+.price-original{ font-family:var(--font-mono); font-size:14px; color:var(--ink-soft); position:relative; margin-inline-end:10px; }
+.price-original::after{
+  content:""; position:absolute; left:0; right:0; top:50%; height:2px; background:#C0473F;
+  transform:scaleX(0); transform-origin:left; animation: strikeanim .7s var(--ease) .4s forwards;
+}
+@keyframes strikeanim{ to{ transform:scaleX(1); } }
+.discount-badge{ display:inline-block; background:var(--gold); color:var(--ink); font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; margin-inline-start:8px; }
+
+.telegram-box{
+  display:flex; align-items:center; gap:14px;
+  background:var(--ink); color:var(--cream);
+  border-radius:14px; padding:18px 20px; margin-top:8px;
+  transition: transform .2s var(--ease);
+}
+.telegram-box:hover{ transform:translateY(-2px); }
+.telegram-box .tg-icon{ font-size:26px; }
+.telegram-box .tg-text{ flex:1; }
+.telegram-box .tg-text strong{ display:block; font-size:14.5px; margin-bottom:2px; }
+.telegram-box .tg-text span{ font-size:12.5px; opacity:0.7; font-family:var(--font-mono); }
+
+/* ===================== HISTORY ===================== */
+.history-list{ display:flex; flex-direction:column; gap:12px; max-height:60vh; overflow-y:auto; }
+.history-item{ border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:#fff; }
+.history-item .h-top{ display:flex; justify-content:space-between; font-size:13px; color:var(--ink-soft); margin-bottom:8px; font-family:var(--font-mono); }
+.history-item .h-title{ font-weight:700; font-size:15px; margin-bottom:4px; }
+.history-item .h-price{ font-family:var(--font-mono); color:var(--violet); font-weight:600; }
+.history-empty{ text-align:center; color:var(--ink-soft); padding:40px 0; font-size:14px; }
+
+/* ===================== PDF SOURCE (offscreen) ===================== */
+.pdf-source{ position:fixed; top:-99999px; left:-99999px; }
+.pdf-page{
+  width:794px; min-height:1123px;
+  background:#ffffff;
+  padding:70px 64px;
+  font-family: 'Space Grotesk', sans-serif;
+  color:#1C1B18;
+  position:relative;
+}
+.pdf-page .pdf-brand{ font-size:26px; font-weight:700; margin-bottom:6px; }
+.pdf-page .pdf-brand span{ color:#4C3AED; }
+.pdf-page .pdf-sub{ font-size:12px; color:#8a867b; margin-bottom:36px; letter-spacing:0.05em; text-transform:uppercase; }
+.pdf-section-title{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#4C3AED; margin:28px 0 12px; }
+.pdf-row{ display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee; font-size:13.5px; }
+.pdf-row .k{ color:#55524A; }
+.pdf-row .v{ font-weight:600; }
+.pdf-total{ display:flex; justify-content:space-between; padding:16px 0; margin-top:10px; border-top:2px solid #1C1B18; font-size:16px; font-weight:700; }
+.pdf-footer{ position:absolute; bottom:60px; left:64px; right:64px; text-align:center; font-size:20px; font-weight:700; letter-spacing:0.02em; color:#1C1B18; border-top:1px solid #eee; padding-top:20px; }
+.pdf-footer span{ color:#4C3AED; }
+.pdf-watermark{ position:absolute; bottom:100px; left:64px; right:64px; text-align:center; font-size:9px; color:#c9c6bc; letter-spacing:0.1em; }
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 980px){
+  .hero-grid{ grid-template-columns:1fr; gap:48px; }
+  .hero-media{ order:-1; }
+  .feature-row, .feature-row.reverse{ grid-template-columns:1fr; gap:32px; }
+  .feature-row{ padding:56px 24px; }
+  /* On mobile, text always comes first regardless of reverse */
+  .feature-row .feature-text, .feature-row.reverse .feature-text{ order:1; }
+  .feature-row .feature-media, .feature-row.reverse .feature-media{ order:2; margin-top:8px; }
+  .why-grid{ grid-template-columns:1fr 1fr; }
+  .field-row{ grid-template-columns:1fr; }
+}
+@media (max-width: 620px){
+  .hero{ padding:110px 20px 60px; min-height:auto; }
+  .topbar{ padding:14px 18px; }
+  .lang-pill-option{ padding:6px 9px; font-size:10.5px; }
+  .why-grid{ grid-template-columns:1fr; }
+  .modal{ padding:26px 22px; }
+  .option-grid{ grid-template-columns:1fr; }
+  .date-row{ grid-template-columns:1fr 1fr 1fr; gap:6px; }
+  .hero-ctas{ flex-direction:column; align-items:stretch; }
+  .hero-ctas .btn{ text-align:center; justify-content:center; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<header class="topbar" id="topbar">
+  <div class="topbar-inner">
+    <div class="brand" data-i18n-static="brandName">IJECT<span class="brand-dot">Studio</span></div>
+    <button class="lang-pill" id="langPill" aria-label="Change language">
+      <span class="lang-pill-track">
+        <span class="lang-pill-option active" data-lang-opt="fa">فارسی</span>
+        <span class="lang-pill-option" data-lang-opt="en">English</span>
+      </span>
+    </button>
+    <div class="topbar-actions">
+      <button class="auth-btn" id="authBtn"><span id="authBtnLabel">ورود</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== LANDING PAGE ===== -->
+<main id="landing">
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="hero.eyebrow">استودیوی طراحی و توسعه وب</p>
+        <h1 class="hero-title" data-i18n="hero.title">سایتی که مشتری‌هاتون<br>باور می‌کنن.</h1>
+        <p class="hero-sub" data-i18n="hero.sub">تیم IJECT از ایده تا دامنه‌ی نهایی، وب‌سایت شما را با دقت مهندسی و ذوق طراحی می‌سازد.</p>
+        <div class="hero-ctas">
+          <button class="btn btn-primary" id="heroStartBtn" data-i18n="hero.cta1">شروع کنید</button>
+          <a href="#work" class="btn btn-ghost" data-i18n="hero.cta2">نمونه‌کارها</a>
+        </div>
+      </div>
+      <div class="hero-media">
+        <div class="terminal" id="heroTerminal">
+          <div class="terminal-bar">
+            <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+            <span class="terminal-title">iject.build</span>
+          </div>
+          <div class="terminal-body" id="terminalBody"></div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-cue"><span></span></div>
+  </section>
+
+  <!-- FEATURE ROWS (github-like alternating scroll reveal) -->
+  <section class="feature-row" id="work" data-reveal>
+    <div class="feature-text">
+      <p class="eyebrow" data-i18n="f1.eyebrow">طراحی سفارشی</p>
+      <h2 data-i18n="f1.title">هر پروژه، یک هویت بصری منحصربه‌فرد</h2>
+      <p data-i18n="f1.body">ما از قالب‌های تکراری استفاده نمی‌کنیم. هر سایت بر اساس برند، مخاطب و هدف کسب‌وکار شما از صفر طراحی می‌شود؛ از رنگ‌بندی گرفته تا تایپوگرافی و حرکت.</p>
+    </div>
+    <div class="feature-media">
+      <div class="mock mock-design">
+        <div class="mock-swatch" style="background:#4C3AED"></div>
+        <div class="mock-swatch" style="background:#C9A961"></div>
+        <div class="mock-swatch" style="background:#1C1B18"></div>
+        <div class="mock-lines">
+          <span></span><span></span><span style="width:60%"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-row reverse" data-reveal>
+    <div class="feature-text">
+      <p class="eyebrow" data-i18n="f2.eyebrow">توسعه فنی</p>
+      <h2 data-i18n="f2.title">سریع، امن و آماده برای رشد</h2>
+      <p data-i18n="f2.body">وب‌سایت شما با استانداردهای امروز کدنویسی می‌شود؛ ریسپانسیو در تمام دستگاه‌ها، سرعت بارگذاری بالا و آماده برای اتصال به هر سرویس پرداخت یا مدیریت محتوا.</p>
+    </div>
+    <div class="feature-media">
+      <div class="mock mock-code">
+        <div class="mock-code-line"><span class="tok-kw">const</span> <span class="tok-var">site</span> = <span class="tok-fn">buildFor</span>(<span class="tok-str">"you"</span>);</div>
+        <div class="mock-code-line"><span class="tok-kw">await</span> site.<span class="tok-fn">deploy</span>();</div>
+        <div class="mock-code-line mock-code-comment">// responsive · secure · fast</div>
+        <div class="mock-progress"><div class="mock-progress-bar"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-row" data-reveal>
+    <div class="feature-text">
+      <p class="eyebrow" data-i18n="f3.eyebrow">هوش مصنوعی مشاور</p>
+      <h2 data-i18n="f3.title">مسیر پیشنهادی، بر اساس نیاز واقعی شما</h2>
+      <p data-i18n="f3.body">با چند سؤال ساده درباره‌ی کسب‌وکارتان، سیستم هوشمند ما نوع هاست، سرور و دامنه‌ی مناسب را پیشنهاد می‌دهد و برآورد قیمت شفاف در اختیارتان می‌گذارد.</p>
+    </div>
+    <div class="feature-media">
+      <div class="mock mock-chat">
+        <div class="mock-bubble mock-bubble-ai" data-i18n="f3.bubble1">چند محصول دارید؟</div>
+        <div class="mock-bubble mock-bubble-user" data-i18n="f3.bubble2">حدود ۲۰۰ محصول</div>
+        <div class="mock-bubble mock-bubble-ai" data-i18n="f3.bubble3">پیشنهاد: هاست پرسرعت + دامنه .ir</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-row reverse" data-reveal>
+    <div class="feature-text">
+      <p class="eyebrow" data-i18n="f4.eyebrow">شفافیت قیمت</p>
+      <h2 data-i18n="f4.title">قبل از شروع، دقیقاً بدانید چه می‌پردازید</h2>
+      <p data-i18n="f4.body">هزینه‌ی طراحی، ساخت، هاست و دامنه به‌صورت شفاف محاسبه و نمایش داده می‌شود؛ بدون هزینه‌ی پنهان، با تخفیف ویژه برای اولین خرید شما.</p>
+    </div>
+    <div class="feature-media">
+      <div class="mock mock-price">
+        <div class="mock-price-row"><span data-i18n="f4.item1">طراحی و ساخت</span><span>۱۲,۰۰۰,۰۰۰</span></div>
+        <div class="mock-price-row"><span data-i18n="f4.item2">هاست + دامنه</span><span>۲,۵۹۵,۰۰۰</span></div>
+        <div class="mock-price-total"><span data-i18n="f4.total">مجموع (۵٪ تخفیف)</span><span class="strike">۱۴,۵۹۵,۰۰۰</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-row" data-reveal>
+    <div class="feature-text">
+      <p class="eyebrow" data-i18n="f5.eyebrow">پشتیبانی مستقیم</p>
+      <h2 data-i18n="f5.title">یک تیم واقعی، نه یک ربات پاسخ‌گو</h2>
+      <p data-i18n="f5.body">پس از تکمیل درخواست، مستقیماً با متخصصان IJECT در تلگرام در ارتباط خواهید بود؛ گزارش کامل پروژه‌ی شما آماده و برایتان ارسال می‌شود.</p>
+    </div>
+    <div class="feature-media">
+      <div class="mock mock-doc">
+        <div class="mock-doc-header">IJECT Studio</div>
+        <div class="mock-doc-line"></div><div class="mock-doc-line" style="width:80%"></div><div class="mock-doc-line" style="width:60%"></div>
+        <div class="mock-doc-badge" data-i18n="f5.badge">PDF آماده</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US -->
+  <section class="why-us" data-reveal>
+    <p class="eyebrow center" data-i18n="why.eyebrow">چرا IJECT</p>
+    <h2 class="center" data-i18n="why.title">تفاوت را در جزئیات می‌بینید</h2>
+    <div class="why-grid">
+      <div class="why-card">
+        <h3 data-i18n="why.c1.title">دقت مهندسی</h3>
+        <p data-i18n="why.c1.body">هر خط کد با تست و بازبینی همراه است؛ خروجی بدون باگ و پایدار در تمام دستگاه‌ها.</p>
+      </div>
+      <div class="why-card">
+        <h3 data-i18n="why.c2.title">سرعت تحویل</h3>
+        <p data-i18n="why.c2.body">فرآیندهای هوشمند ما زمان مشاوره و برآورد قیمت را از روزها به دقیقه رسانده.</p>
+      </div>
+      <div class="why-card">
+        <h3 data-i18n="why.c3.title">شفافیت کامل</h3>
+        <p data-i18n="why.c3.body">قیمت‌گذاری روشن، بدون هزینه‌ی پنهان، با گزارش کتبی برای هر پروژه.</p>
+      </div>
+      <div class="why-card">
+        <h3 data-i18n="why.c4.title">پشتیبانی انسانی</h3>
+        <p data-i18n="why.c4.body">پشت هر پروژه یک تیم واقعی از متخصصان طراحی و توسعه ایستاده است.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta" data-reveal>
+    <h2 data-i18n="final.title">آماده‌اید سایت‌تان را بسازیم؟</h2>
+    <button class="btn btn-primary btn-large" id="finalStartBtn" data-i18n="hero.cta1">شروع کنید</button>
+  </section>
+
+  <footer class="footer">
+    <span data-i18n-static="brandName2">IJECT Studio</span>
+    <span class="footer-sep">·</span>
+    <span data-i18n="footer.rights">تمامی حقوق محفوظ است</span>
+  </footer>
+</main>
+
+<!-- ===== AUTH MODAL ===== -->
+<div class="modal-overlay" id="authOverlay">
+  <div class="modal auth-modal">
+    <button class="modal-close" id="authCloseBtn">&times;</button>
+    <h2 data-i18n="auth.title">ساخت حساب کاربری</h2>
+    <p class="modal-sub" data-i18n="auth.sub">برای ادامه، اطلاعات زیر را وارد کنید</p>
+
+    <form id="authForm" novalidate>
+      <div class="field-row">
+        <div class="field">
+          <label data-i18n="auth.firstName">نام</label>
+          <input type="text" id="firstName" required>
+          <span class="field-error" id="err-firstName"></span>
+        </div>
+        <div class="field">
+          <label data-i18n="auth.lastName">نام خانوادگی</label>
+          <input type="text" id="lastName" required>
+          <span class="field-error" id="err-lastName"></span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="auth.phone">شماره تلفن همراه</label>
+        <input type="text" id="phone" placeholder="09123456789" inputmode="numeric" required>
+        <span class="field-error" id="err-phone"></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="auth.email">ایمیل</label>
+        <input type="text" id="email" placeholder="example@gmail.com" required>
+        <span class="field-error" id="err-email"></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="auth.birthdate"><span id="birthdateLabel">تاریخ تولد (شمسی)</span></label>
+        <div class="date-row" id="dateRowFa">
+          <select id="birthDay"></select>
+          <select id="birthMonth"></select>
+          <select id="birthYear"></select>
+        </div>
+        <input type="date" id="dateRowEn" class="date-input-en" style="display:none">
+        <span class="field-error" id="err-birthdate"></span>
+      </div>
+
+      <div class="field">
+        <label data-i18n="auth.nationalId">کد ملی</label>
+        <input type="text" id="nationalId" placeholder="0012345678" inputmode="numeric" maxlength="10" required>
+        <span class="field-error" id="err-nationalId"></span>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-full" id="submitAuthBtn">
+        <span id="submitAuthLabel" data-i18n="auth.submit">ساخت حساب</span>
+      </button>
+    </form>
+
+    <div class="auth-loading" id="authLoading">
+      <div class="spinner"></div>
+      <p data-i18n="auth.creating">در حال ساخت حساب کاربری…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WIZARD MODAL ===== -->
+<div class="modal-overlay" id="wizardOverlay">
+  <div class="modal wizard-modal">
+    <button class="modal-close" id="wizardCloseBtn">&times;</button>
+    <div class="wizard-progress"><div class="wizard-progress-bar" id="wizardProgressBar"></div></div>
+    <div id="wizardContent"></div>
+  </div>
+</div>
+
+<!-- ===== HISTORY PANEL ===== -->
+<div class="modal-overlay" id="historyOverlay">
+  <div class="modal history-modal">
+    <button class="modal-close" id="historyCloseBtn">&times;</button>
+    <h2 data-i18n="history.title">تاریخچه بررسی‌ها</h2>
+    <div id="historyList" class="history-list"></div>
+  </div>
+</div>
+
+<div id="pdfSource" class="pdf-source"></div>
+
+<script>
+const I18N = {
+fa: {
+  "hero.eyebrow": "استودیوی طراحی و توسعه وب",
+  "hero.title": "سایتی که مشتری‌هاتون<br>باور می‌کنن.",
+  "hero.sub": "تیم IJECT از ایده تا دامنه‌ی نهایی، وب‌سایت شما را با دقت مهندسی و ذوق طراحی می‌سازد.",
+  "hero.cta1": "شروع کنید",
+  "hero.cta2": "نمونه‌کارها",
+
+  "f1.eyebrow": "طراحی سفارشی",
+  "f1.title": "هر پروژه، یک هویت بصری منحصربه‌فرد",
+  "f1.body": "ما از قالب‌های تکراری استفاده نمی‌کنیم. هر سایت بر اساس برند، مخاطب و هدف کسب‌وکار شما از صفر طراحی می‌شود؛ از رنگ‌بندی گرفته تا تایپوگرافی و حرکت.",
+
+  "f2.eyebrow": "توسعه فنی",
+  "f2.title": "سریع، امن و آماده برای رشد",
+  "f2.body": "وب‌سایت شما با استانداردهای امروز کدنویسی می‌شود؛ ریسپانسیو در تمام دستگاه‌ها، سرعت بارگذاری بالا و آماده برای اتصال به هر سرویس پرداخت یا مدیریت محتوا.",
+
+  "f3.eyebrow": "هوش مصنوعی مشاور",
+  "f3.title": "مسیر پیشنهادی، بر اساس نیاز واقعی شما",
+  "f3.body": "با چند سؤال ساده درباره‌ی کسب‌وکارتان، سیستم هوشمند ما نوع هاست، سرور و دامنه‌ی مناسب را پیشنهاد می‌دهد و برآورد قیمت شفاف در اختیارتان می‌گذارد.",
+  "f3.bubble1": "چند محصول دارید؟",
+  "f3.bubble2": "حدود ۲۰۰ محصول",
+  "f3.bubble3": "پیشنهاد: هاست پرسرعت + دامنه .ir",
+
+  "f4.eyebrow": "شفافیت قیمت",
+  "f4.title": "قبل از شروع، دقیقاً بدانید چه می‌پردازید",
+  "f4.body": "هزینه‌ی طراحی، ساخت، هاست و دامنه به‌صورت شفاف محاسبه و نمایش داده می‌شود؛ بدون هزینه‌ی پنهان، با تخفیف ویژه برای اولین خرید شما.",
+  "f4.item1": "طراحی و ساخت",
+  "f4.item2": "هاست + دامنه",
+  "f4.total": "مجموع (۵٪ تخفیف)",
+
+  "f5.eyebrow": "پشتیبانی مستقیم",
+  "f5.title": "یک تیم واقعی، نه یک ربات پاسخ‌گو",
+  "f5.body": "پس از تکمیل درخواست، مستقیماً با متخصصان IJECT در تلگرام در ارتباط خواهید بود؛ گزارش کامل پروژه‌ی شما آماده و برایتان ارسال می‌شود.",
+  "f5.badge": "PDF آماده",
+
+  "why.eyebrow": "چرا IJECT",
+  "why.title": "تفاوت را در جزئیات می‌بینید",
+  "why.c1.title": "دقت مهندسی",
+  "why.c1.body": "هر خط کد با تست و بازبینی همراه است؛ خروجی بدون باگ و پایدار در تمام دستگاه‌ها.",
+  "why.c2.title": "سرعت تحویل",
+  "why.c2.body": "فرآیندهای هوشمند ما زمان مشاوره و برآورد قیمت را از روزها به دقیقه رسانده.",
+  "why.c3.title": "شفافیت کامل",
+  "why.c3.body": "قیمت‌گذاری روشن، بدون هزینه‌ی پنهان، با گزارش کتبی برای هر پروژه.",
+  "why.c4.title": "پشتیبانی انسانی",
+  "why.c4.body": "پشت هر پروژه یک تیم واقعی از متخصصان طراحی و توسعه ایستاده است.",
+
+  "final.title": "آماده‌اید سایت‌تان را بسازیم؟",
+  "footer.rights": "تمامی حقوق محفوظ است",
+
+  "nav.signin": "ورود",
+  "nav.start": "شروع",
+  "nav.history": "تاریخچه",
+
+  "auth.title": "ساخت حساب کاربری",
+  "auth.sub": "برای ادامه، اطلاعات زیر را وارد کنید",
+  "auth.firstName": "نام",
+  "auth.lastName": "نام خانوادگی",
+  "auth.phone": "شماره تلفن همراه",
+  "auth.email": "ایمیل",
+  "auth.birthdate": "تاریخ تولد (شمسی)",
+  "auth.nationalId": "کد ملی",
+  "auth.submit": "ساخت حساب",
+  "auth.creating": "در حال ساخت حساب کاربری…",
+
+  "err.required": "این فیلد الزامی است",
+  "err.phone": "شماره باید با ۰ شروع شود و ۱۱ رقم باشد",
+  "err.email": "ایمیل باید با gmail.com@ تمام شود",
+  "err.nationalId": "کد ملی باید ۱۰ رقم باشد",
+  "err.birthdate": "تاریخ تولد را کامل انتخاب کنید",
+
+  "wiz.step1.title": "درباره‌ی سایتتان بگویید",
+  "wiz.step1.sub": "نوع وب‌سایت مورد نظرتان را انتخاب کنید",
+  "wiz.type.store.label": "فروشگاهی",
+  "wiz.type.store.desc": "فروش آنلاین محصولات",
+  "wiz.type.corporate.label": "شرکتی",
+  "wiz.type.corporate.desc": "معرفی کسب‌وکار و خدمات",
+  "wiz.type.blog.label": "وبلاگ / رسانه",
+  "wiz.type.blog.desc": "انتشار مقالات و محتوا",
+  "wiz.type.portfolio.label": "نمونه‌کار",
+  "wiz.type.portfolio.desc": "نمایش آثار و پروژه‌ها",
+  "wiz.type.booking.label": "رزرواسیون",
+  "wiz.type.booking.desc": "رزرو نوبت یا خدمات",
+
+  "wiz.step2.title": "جزئیات بیشتر",
+  "wiz.step2.sub": "این اطلاعات به ما کمک می‌کند بهترین پیشنهاد را بدهیم",
+  "wiz.productCount": "تعداد محصولات",
+  "wiz.jobType": "نوع شغل / حوزه فعالیت",
+  "wiz.jobType.placeholder": "مثلاً پوشاک، دیجیتال، خوراکی...",
+  "wiz.serviceType": "نوع خدمات ارائه‌شده",
+  "wiz.serviceType.placeholder": "مثلاً مشاوره، آموزش، سالن زیبایی...",
+  "wiz.contentVolume": "حجم محتوا",
+  "wiz.contentVolume.low": "کم (چند صفحه)",
+  "wiz.contentVolume.medium": "متوسط",
+  "wiz.contentVolume.high": "زیاد (آرشیو بزرگ)",
+
+  "wiz.step3.title": "زیرساخت پیشنهادی",
+  "wiz.step3.sub": "بر اساس اطلاعات شما، این زیرساخت را پیشنهاد می‌کنیم",
+  "wiz.infra.recommended": "پیشنهاد سیستم",
+  "wiz.infra.hostBasic": "هاست اشتراکی",
+  "wiz.infra.hostFast": "هاست پرسرعت (NVMe)",
+  "wiz.infra.vps": "سرور مجازی (VPS)",
+  "wiz.needDomain": "آیا نیاز به ثبت دامنه دارید؟",
+  "wiz.domainYes": "بله، دامنه می‌خواهم",
+  "wiz.domainNo": "دامنه دارم / نیاز ندارم",
+  "wiz.domainType": "پسوند دامنه مورد نظر",
+
+  "wiz.step4.title": "سطح طراحی",
+  "wiz.step4.sub": "بسته‌ی موردنظرتان را انتخاب کنید",
+  "wiz.pkg.designOnly": "فقط طراحی",
+  "wiz.pkg.full": "طراحی و ساخت کامل",
+  "wiz.tier.standard": "معمولی",
+  "wiz.tier.premium": "پرمیوم",
+  "wiz.tier.standard.desc": "طراحی و پیاده‌سازی استاندارد",
+  "wiz.tier.premium.desc": "طراحی اختصاصی و امکانات پیشرفته",
+
+  "wiz.step5.title": "برآورد قیمت شما",
+  "wiz.step5.sub": "خلاصه‌ی هزینه‌ی پروژه، به تومان",
+  "wiz.price.design": "هزینه‌ی طراحی/ساخت",
+  "wiz.price.host": "هاست",
+  "wiz.price.domain": "دامنه",
+  "wiz.price.subtotal": "جمع جزء",
+  "wiz.price.discount": "تخفیف اولین خرید",
+  "wiz.price.total": "مجموع نهایی",
+  "wiz.firstPurchase": "خرید اول",
+
+  "wiz.final.title": "درخواست شما ثبت شد",
+  "wiz.final.sub": "برای تکمیل فرآیند، گزارش زیر را دانلود و برای تیم ما در تلگرام ارسال کنید",
+  "wiz.download": "دانلود گزارش (تصویر)",
+  "wiz.telegramTitle": "ارسال به تیم IJECT",
+  "wiz.telegramSub": "روی دکمه زیر بزنید تا به تلگرام منتقل شوید",
+  "wiz.finish": "پایان و بازگشت",
+
+  "wiz.back": "بازگشت",
+  "wiz.next": "بعدی",
+  "wiz.viewPrice": "مشاهده قیمت",
+
+  "history.title": "تاریخچه بررسی‌ها",
+  "history.empty": "هنوز هیچ بررسی‌ای ثبت نشده است",
+  "history.type": "نوع سایت",
+  "history.date": "تاریخ",
+
+  "pdf.title": "گزارش برآورد پروژه",
+  "pdf.clientInfo": "اطلاعات مشتری",
+  "pdf.projectInfo": "اطلاعات پروژه",
+  "pdf.priceInfo": "برآورد هزینه (تومان)",
+  "pdf.name": "نام و نام خانوادگی",
+  "pdf.phone": "شماره تماس",
+  "pdf.email": "ایمیل",
+  "pdf.nationalId": "کد ملی",
+  "pdf.siteType": "نوع وب‌سایت",
+  "pdf.package": "بسته انتخابی",
+  "pdf.infra": "زیرساخت",
+  "pdf.domain": "دامنه",
+  "pdf.total": "مجموع نهایی",
+
+  "types.store":"فروشگاهی", "types.corporate":"شرکتی", "types.blog":"وبلاگ / رسانه",
+  "types.portfolio":"نمونه‌کار", "types.booking":"رزرواسیون",
+
+  "months.fa": ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"]
+},
+en: {
+  "hero.eyebrow": "Web design & development studio",
+  "hero.title": "A site your customers<br>actually believe.",
+  "hero.sub": "IJECT builds your website from idea to live domain, with engineering precision and real design craft.",
+  "hero.cta1": "Get started",
+  "hero.cta2": "Our work",
+
+  "f1.eyebrow": "Custom design",
+  "f1.title": "Every project gets its own visual identity",
+  "f1.body": "We don't reuse templates. Each site is designed from scratch around your brand, audience, and business goals — palette, typography, and motion included.",
+
+  "f2.eyebrow": "Engineering",
+  "f2.title": "Fast, secure, and built to grow",
+  "f2.body": "Your site is built to modern standards: responsive on every device, fast to load, and ready to connect to any payment or content system.",
+
+  "f3.eyebrow": "AI-assisted planning",
+  "f3.title": "A recommendation built for your actual needs",
+  "f3.body": "A few simple questions about your business, and our system suggests the right hosting, server, and domain — with a transparent price estimate.",
+  "f3.bubble1": "How many products do you have?",
+  "f3.bubble2": "About 200 products",
+  "f3.bubble3": "Suggested: fast hosting + .com domain",
+
+  "f4.eyebrow": "Transparent pricing",
+  "f4.title": "Know exactly what you're paying, before you start",
+  "f4.body": "Design, build, hosting, and domain costs are calculated and shown clearly — no hidden fees, plus a special discount on your first order.",
+  "f4.item1": "Design & build",
+  "f4.item2": "Hosting + domain",
+  "f4.total": "Total (5% off)",
+
+  "f5.eyebrow": "Direct support",
+  "f5.title": "A real team, not a chatbot",
+  "f5.body": "Once your request is complete, you'll connect directly with IJECT specialists on Telegram, with a full project report ready to send.",
+  "f5.badge": "PDF ready",
+
+  "why.eyebrow": "Why IJECT",
+  "why.title": "The difference is in the details",
+  "why.c1.title": "Engineering precision",
+  "why.c1.body": "Every line of code is tested and reviewed — stable, bug-free output across every device.",
+  "why.c2.title": "Faster delivery",
+  "why.c2.body": "Our smart workflow turns days of consultation and quoting into minutes.",
+  "why.c3.title": "Full transparency",
+  "why.c3.body": "Clear pricing, no hidden costs, with a written report for every project.",
+  "why.c4.title": "Human support",
+  "why.c4.body": "A real team of designers and developers stands behind every project.",
+
+  "final.title": "Ready to build your site?",
+  "footer.rights": "All rights reserved",
+
+  "nav.signin": "Sign in",
+  "nav.start": "Start",
+  "nav.history": "History",
+
+  "auth.title": "Create your account",
+  "auth.sub": "Enter your details to continue",
+  "auth.firstName": "First name",
+  "auth.lastName": "Last name",
+  "auth.phone": "Mobile number",
+  "auth.email": "Email",
+  "auth.birthdate": "Date of birth",
+  "auth.nationalId": "National ID",
+  "auth.submit": "Create account",
+  "auth.creating": "Creating your account…",
+
+  "err.required": "This field is required",
+  "err.phone": "Must start with 0 and be 11 digits",
+  "err.email": "Email must end with @gmail.com",
+  "err.nationalId": "National ID must be 10 digits",
+  "err.birthdate": "Please select a complete date",
+
+  "wiz.step1.title": "Tell us about your site",
+  "wiz.step1.sub": "Choose the type of website you need",
+  "wiz.type.store.label": "Online store",
+  "wiz.type.store.desc": "Sell products online",
+  "wiz.type.corporate.label": "Corporate",
+  "wiz.type.corporate.desc": "Present your business & services",
+  "wiz.type.blog.label": "Blog / media",
+  "wiz.type.blog.desc": "Publish articles & content",
+  "wiz.type.portfolio.label": "Portfolio",
+  "wiz.type.portfolio.desc": "Showcase your work",
+  "wiz.type.booking.label": "Booking",
+  "wiz.type.booking.desc": "Appointments or service booking",
+
+  "wiz.step2.title": "A few more details",
+  "wiz.step2.sub": "This helps us give you the best recommendation",
+  "wiz.productCount": "Number of products",
+  "wiz.jobType": "Business / industry type",
+  "wiz.jobType.placeholder": "e.g. clothing, electronics, food...",
+  "wiz.serviceType": "Type of service offered",
+  "wiz.serviceType.placeholder": "e.g. consulting, training, salon...",
+  "wiz.contentVolume": "Content volume",
+  "wiz.contentVolume.low": "Low (a few pages)",
+  "wiz.contentVolume.medium": "Medium",
+  "wiz.contentVolume.high": "High (large archive)",
+
+  "wiz.step3.title": "Recommended infrastructure",
+  "wiz.step3.sub": "Based on your answers, here's what we recommend",
+  "wiz.infra.recommended": "System recommendation",
+  "wiz.infra.hostBasic": "Shared hosting",
+  "wiz.infra.hostFast": "Fast NVMe hosting",
+  "wiz.infra.vps": "Virtual private server (VPS)",
+  "wiz.needDomain": "Do you need a domain registered?",
+  "wiz.domainYes": "Yes, I need a domain",
+  "wiz.domainNo": "I have one / don't need one",
+  "wiz.domainType": "Preferred domain extension",
+
+  "wiz.step4.title": "Design tier",
+  "wiz.step4.sub": "Choose your package",
+  "wiz.pkg.designOnly": "Design only",
+  "wiz.pkg.full": "Design & full build",
+  "wiz.tier.standard": "Standard",
+  "wiz.tier.premium": "Premium",
+  "wiz.tier.standard.desc": "Standard design and implementation",
+  "wiz.tier.premium.desc": "Custom design and advanced features",
+
+  "wiz.step5.title": "Your price estimate",
+  "wiz.step5.sub": "Project cost summary, in Toman",
+  "wiz.price.design": "Design/build fee",
+  "wiz.price.host": "Hosting",
+  "wiz.price.domain": "Domain",
+  "wiz.price.subtotal": "Subtotal",
+  "wiz.price.discount": "First-order discount",
+  "wiz.price.total": "Final total",
+  "wiz.firstPurchase": "First purchase",
+
+  "wiz.final.title": "Your request has been recorded",
+  "wiz.final.sub": "Download the report below and send it to our team on Telegram to finish",
+  "wiz.download": "Download report (image)",
+  "wiz.telegramTitle": "Send to IJECT team",
+  "wiz.telegramSub": "Tap the button below to open Telegram",
+  "wiz.finish": "Finish & return",
+
+  "wiz.back": "Back",
+  "wiz.next": "Next",
+  "wiz.viewPrice": "View price",
+
+  "history.title": "Review history",
+  "history.empty": "No reviews recorded yet",
+  "history.type": "Site type",
+  "history.date": "Date",
+
+  "pdf.title": "Project Estimate Report",
+  "pdf.clientInfo": "Client Information",
+  "pdf.projectInfo": "Project Information",
+  "pdf.priceInfo": "Cost Estimate (Toman)",
+  "pdf.name": "Full name",
+  "pdf.phone": "Phone",
+  "pdf.email": "Email",
+  "pdf.nationalId": "National ID",
+  "pdf.siteType": "Website type",
+  "pdf.package": "Selected package",
+  "pdf.infra": "Infrastructure",
+  "pdf.domain": "Domain",
+  "pdf.total": "Final total",
+
+  "types.store":"Online store", "types.corporate":"Corporate", "types.blog":"Blog / media",
+  "types.portfolio":"Portfolio", "types.booking":"Booking",
+
+  "months.fa": ["Farvardin","Ordibehesht","Khordad","Tir","Mordad","Shahrivar","Mehr","Aban","Azar","Dey","Bahman","Esfand"]
+}
+};
+
+</script>
+<script>
+/* =============== STATE =============== */
+let currentLang = localStorage.getItem('iject_lang') || 'fa';
+let isLoggedIn = localStorage.getItem('iject_user') !== null;
+
+/* =============== JALALI CALENDAR HELPERS (no deps) =============== */
+// Minimal, accurate-enough Jalali <-> Gregorian conversion (well-known algorithm)
+function toJalali(gy, gm, gd){
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+  let jy = -1595 + (33 * Math.floor(days / 12053));
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) { jy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+  let jm, jd;
+  if (days < 186) { jm = 1 + Math.floor(days / 31); jd = 1 + (days % 31); }
+  else { jm = 7 + Math.floor((days - 186) / 30); jd = 1 + ((days - 186) % 30); }
+  return [jy, jm, jd];
+}
+function toGregorian(jy, jm, jd){
+  jy += 1595;
+  let days = -355668 + (365 * jy) + (Math.floor(jy / 33) * 8) + Math.floor(((jy % 33) + 3) / 4) + jd + ((jm < 7) ? (jm - 1) * 31 : ((jm - 7) * 30) + 186);
+  let gy = 400 * Math.floor(days / 146097);
+  days %= 146097;
+  if (days > 36524) { gy += 100 * Math.floor(--days / 36524); days %= 36524; if (days >= 365) days++; }
+  gy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) { gy += Math.floor((days - 1) / 365); days = (days - 1) % 365; }
+  let gd = days + 1;
+  const sal_a = [0,31,(((gy%4===0)&&(gy%100!==0))||(gy%400===0))?29:28,31,30,31,30,31,31,30,31,30,31];
+  let gm;
+  for (gm = 0; gm < 13; gm++){ let v = sal_a[gm]; if (gd <= v) break; gd -= v; }
+  return [gy, gm, gd];
+}
+function jalaliDaysInMonth(jy, jm){
+  if (jm <= 6) return 31;
+  if (jm <= 11) return 30;
+  // esfand: leap check
+  const isLeap = ((((jy - (jy > 0 ? 474 : 473)) % 2820) + 474 + 38) * 682) % 2816 < 682;
+  return isLeap ? 30 : 29;
+}
+
+/* =============== I18N APPLY =============== */
+function applyLang(lang, animate=true){
+  currentLang = lang;
+  localStorage.setItem('iject_lang', lang);
+  const html = document.documentElement;
+  html.setAttribute('data-lang', lang);
+  html.setAttribute('dir', lang === 'fa' ? 'rtl' : 'ltr');
+  html.setAttribute('lang', lang === 'fa' ? 'fa' : 'en');
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (I18N[lang][key] !== undefined) el.innerHTML = I18N[lang][key];
+  });
+
+  // lang pill active state
+  document.querySelectorAll('.lang-pill-option').forEach(el => {
+    el.classList.toggle('active', el.getAttribute('data-lang-opt') === lang);
+  });
+  document.getElementById('langPill').classList.toggle('lang-is-second', lang === 'en');
+
+  // auth button label
+  document.getElementById('authBtnLabel').textContent = isLoggedIn ? I18N[lang]['nav.start'] : I18N[lang]['nav.signin'];
+
+  // birthdate label + toggle picker type
+  const birthdateLabelText = lang === 'fa' ? 'تاریخ تولد (شمسی)' : 'Date of birth';
+  document.getElementById('birthdateLabel').textContent = birthdateLabelText;
+  document.getElementById('dateRowFa').style.display = lang === 'fa' ? 'grid' : 'none';
+  document.getElementById('dateRowEn').style.display = lang === 'fa' ? 'none' : 'block';
+
+  if (lang === 'fa') populateJalaliSelectors();
+
+  // re-render wizard step if open
+  if (wizardOpen) renderWizardStep();
+  renderHistoryList();
+}
+
+/* =============== TOPBAR SCROLL STATE =============== */
+window.addEventListener('scroll', () => {
+  document.getElementById('topbar').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+/* =============== SCROLL REVEAL =============== */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting){
+      entry.target.classList.add('revealed');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.2 });
+document.querySelectorAll('[data-reveal]').forEach(el => revealObserver.observe(el));
+
+/* =============== HERO TERMINAL TYPEWRITER =============== */
+const terminalLines = {
+  fa: [
+    { text: '$ npx iject create my-site', cls: 'line-prompt' },
+    { text: '✓ در حال تحلیل نیاز کسب‌وکار...', cls: '' },
+    { text: '✓ طراحی رابط کاربری بر اساس برند', cls: '' },
+    { text: '✓ بهینه‌سازی برای موبایل و دسکتاپ', cls: '' },
+    { text: '// آماده برای انتشار', cls: 'line-comment' },
+  ],
+  en: [
+    { text: '$ npx iject create my-site', cls: 'line-prompt' },
+    { text: '✓ analyzing business requirements...', cls: '' },
+    { text: '✓ designing UI around your brand', cls: '' },
+    { text: '✓ optimizing for mobile & desktop', cls: '' },
+    { text: '// ready to deploy', cls: 'line-comment' },
+  ]
+};
+let terminalRunning = false;
+async function typeTerminal(){
+  if (terminalRunning) return;
+  terminalRunning = true;
+  const body = document.getElementById('terminalBody');
+  const lines = terminalLines[currentLang === 'fa' ? 'fa' : 'en'];
+  body.innerHTML = '';
+  for (const line of lines){
+    const div = document.createElement('div');
+    if (line.cls) div.className = line.cls;
+    body.appendChild(div);
+    for (let i = 0; i <= line.text.length; i++){
+      div.textContent = line.text.slice(0, i);
+      await new Promise(r => setTimeout(r, 18));
+    }
+    await new Promise(r => setTimeout(r, 250));
+  }
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  body.lastElementChild.appendChild(cursor);
+  terminalRunning = false;
+}
+const heroObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) typeTerminal(); });
+}, { threshold: 0.3 });
+heroObserver.observe(document.getElementById('heroTerminal'));
+
+/* =============== LANG PILL CLICK =============== */
+document.getElementById('langPill').addEventListener('click', () => {
+  applyLang(currentLang === 'fa' ? 'en' : 'fa');
+});
+
+/* =============== AUTH MODAL =============== */
+const authOverlay = document.getElementById('authOverlay');
+const authBtn = document.getElementById('authBtn');
+const authForm = document.getElementById('authForm');
+const authLoading = document.getElementById('authLoading');
+
+function openModal(el){ el.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(el){ el.classList.remove('open'); document.body.style.overflow = ''; }
+
+authBtn.addEventListener('click', () => {
+  if (isLoggedIn){
+    openWizard();
+  } else {
+    openModal(authOverlay);
+  }
+});
+document.getElementById('authCloseBtn').addEventListener('click', () => closeModal(authOverlay));
+document.getElementById('heroStartBtn').addEventListener('click', () => {
+  if (isLoggedIn) openWizard(); else openModal(authOverlay);
+});
+document.getElementById('finalStartBtn').addEventListener('click', () => {
+  if (isLoggedIn) openWizard(); else openModal(authOverlay);
+});
+
+/* populate jalali day/month/year selectors */
+function populateJalaliSelectors(){
+  const daySel = document.getElementById('birthDay');
+  const monthSel = document.getElementById('birthMonth');
+  const yearSel = document.getElementById('birthYear');
+  const dayPlaceholder = currentLang === 'fa' ? 'روز' : 'Day';
+  const monthPlaceholder = currentLang === 'fa' ? 'ماه' : 'Month';
+  const yearPlaceholder = currentLang === 'fa' ? 'سال' : 'Year';
+
+  const prevDay = daySel.value, prevMonth = monthSel.value, prevYear = yearSel.value;
+
+  daySel.innerHTML = `<option value="">${dayPlaceholder}</option>`;
+  for (let d = 1; d <= 31; d++) daySel.innerHTML += `<option value="${d}">${d}</option>`;
+
+  monthSel.innerHTML = `<option value="">${monthPlaceholder}</option>`;
+  I18N.fa["months.fa"].forEach((m, idx) => {
+    const label = currentLang === 'fa' ? m : I18N.en["months.fa"][idx];
+    monthSel.innerHTML += `<option value="${idx+1}">${label}</option>`;
+  });
+
+  yearSel.innerHTML = `<option value="">${yearPlaceholder}</option>`;
+  const nowJ = toJalali(new Date().getFullYear(), new Date().getMonth()+1, new Date().getDate());
+  for (let y = nowJ[0] - 15; y >= nowJ[0] - 90; y--) yearSel.innerHTML += `<option value="${y}">${y}</option>`;
+
+  if (prevDay) daySel.value = prevDay;
+  if (prevMonth) monthSel.value = prevMonth;
+  if (prevYear) yearSel.value = prevYear;
+}
+populateJalaliSelectors();
+
+/* =============== VALIDATION =============== */
+function setError(fieldId, msgKey){
+  const errEl = document.getElementById('err-' + fieldId);
+  const inputEl = document.getElementById(fieldId);
+  if (msgKey){
+    errEl.textContent = I18N[currentLang][msgKey];
+    if (inputEl) inputEl.classList.add('invalid');
+  } else {
+    errEl.textContent = '';
+    if (inputEl) inputEl.classList.remove('invalid');
+  }
+}
+
+function validateAuthForm(){
+  let valid = true;
+  const firstName = document.getElementById('firstName').value.trim();
+  const lastName = document.getElementById('lastName').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const nationalId = document.getElementById('nationalId').value.trim();
+
+  if (!firstName){ setError('firstName', 'err.required'); valid = false; } else setError('firstName', null);
+  if (!lastName){ setError('lastName', 'err.required'); valid = false; } else setError('lastName', null);
+
+  const phoneOk = /^0\d{10}$/.test(phone);
+  if (!phoneOk){ setError('phone', 'err.phone'); valid = false; } else setError('phone', null);
+
+  const emailOk = /^[^\s@]+@gmail\.com$/i.test(email);
+  if (!emailOk){ setError('email', 'err.email'); valid = false; } else setError('email', null);
+
+  const nidOk = /^\d{10}$/.test(nationalId);
+  if (!nidOk){ setError('nationalId', 'err.nationalId'); valid = false; } else setError('nationalId', null);
+
+  let birthdateOk = false;
+  let birthdateDisplay = '';
+  if (currentLang === 'fa'){
+    const d = document.getElementById('birthDay').value;
+    const m = document.getElementById('birthMonth').value;
+    const y = document.getElementById('birthYear').value;
+    birthdateOk = !!(d && m && y);
+    if (birthdateOk) birthdateDisplay = `${y}/${m}/${d}`;
+  } else {
+    const v = document.getElementById('dateRowEn').value;
+    birthdateOk = !!v;
+    if (birthdateOk) birthdateDisplay = v;
+  }
+  if (!birthdateOk){ setError('birthdate', 'err.birthdate'); valid = false; } else setError('birthdate', null);
+
+  return { valid, data: { firstName, lastName, phone, email, nationalId, birthdate: birthdateDisplay } };
+}
+
+['firstName','lastName','phone','email','nationalId'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => setError(id, null));
+});
+
+authForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const { valid, data } = validateAuthForm();
+  if (!valid) return;
+
+  authForm.classList.add('hide');
+  authLoading.classList.add('show');
+
+  setTimeout(() => {
+    localStorage.setItem('iject_user', JSON.stringify(data));
+    isLoggedIn = true;
+    authLoading.classList.remove('show');
+    authForm.classList.remove('hide');
+    authForm.reset();
+    closeModal(authOverlay);
+    document.getElementById('authBtnLabel').textContent = I18N[currentLang]['nav.start'];
+    ensureHistoryTrigger();
+  }, 5000);
+});
+
+/* =============== WIZARD STATE MACHINE =============== */
+const wizardOverlay = document.getElementById('wizardOverlay');
+const wizardContent = document.getElementById('wizardContent');
+const wizardProgressBar = document.getElementById('wizardProgressBar');
+let wizardOpen = false;
+let wizardStep = 1;
+const TOTAL_STEPS = 6;
+
+let wizardData = {
+  siteType: null,
+  productCount: 50,
+  jobType: '',
+  serviceType: '',
+  contentVolume: 'medium',
+  infra: null,
+  needDomain: null,
+  domainExt: '.ir',
+  packageType: null, // designOnly | full
+  tier: null // standard | premium
+};
+
+function openWizard(){
+  wizardOpen = true;
+  wizardStep = 1;
+  wizardData = { siteType: null, productCount: 50, jobType: '', serviceType: '', contentVolume: 'medium',
+    infra: null, needDomain: null, domainExt: '.ir', packageType: null, tier: null };
+  openModal(wizardOverlay);
+  renderWizardStep();
+}
+document.getElementById('wizardCloseBtn').addEventListener('click', () => { closeModal(wizardOverlay); wizardOpen = false; });
+
+const t = (key) => I18N[currentLang][key] || key;
+
+function updateProgress(){
+  wizardProgressBar.style.width = `${(wizardStep / TOTAL_STEPS) * 100}%`;
+}
+
+function computeInfra(){
+  const count = wizardData.productCount;
+  if (wizardData.siteType === 'store'){
+    if (count <= 30) wizardData.infra = 'hostBasic';
+    else if (count <= 300) wizardData.infra = 'hostFast';
+    else wizardData.infra = 'vps';
+  } else if (wizardData.contentVolume === 'high'){
+    wizardData.infra = 'hostFast';
+  } else {
+    wizardData.infra = 'hostBasic';
+  }
+}
+
+/* ---- Pricing (IJECT fees fixed by brief; hosting/domain based on real Iranian market research) ---- */
+const PRICING = {
+  designOnly: { standard: 5000000, premium: 38000000 },
+  full: { standard: 12000000, premium: 42000000 },
+  infra: {
+    hostBasic: 900000,   // shared linux hosting, ~yearly
+    hostFast: 2500000,   // NVMe fast hosting, ~yearly
+    vps: 6500000         // VPS, ~yearly
+  },
+  domain: { '.ir': 95000, '.com': 650000 }
+};
+
+function computePrice(){
+  const designFee = PRICING[wizardData.packageType][wizardData.tier];
+  const hostFee = PRICING.infra[wizardData.infra];
+  const domainFee = wizardData.needDomain ? PRICING.domain[wizardData.domainExt] : 0;
+  const subtotal = designFee + hostFee + domainFee;
+  const discount = Math.round(subtotal * 0.05);
+  const total = subtotal - discount;
+  return { designFee, hostFee, domainFee, subtotal, discount, total };
+}
+
+function fmt(n){
+  return n.toLocaleString(currentLang === 'fa' ? 'fa-IR' : 'en-US');
+}
+
+function renderWizardStep(){
+  updateProgress();
+  let html = '';
+
+  if (wizardStep === 1){
+    const types = [
+      { key: 'store', icon: '🛍️' },
+      { key: 'corporate', icon: '🏢' },
+      { key: 'blog', icon: '📝' },
+      { key: 'portfolio', icon: '🎨' },
+      { key: 'booking', icon: '📅' },
+    ];
+    html = `
+      <div class="wizard-step">
+        <h2>${t('wiz.step1.title')}</h2>
+        <p class="wizard-sub">${t('wiz.step1.sub')}</p>
+        <div class="option-grid">
+          ${types.map(ty => `
+            <button class="option-card ${wizardData.siteType === ty.key ? 'selected' : ''}" data-site-type="${ty.key}">
+              <span class="icon">${ty.icon}</span>
+              <span class="label">${t('wiz.type.' + ty.key + '.label')}</span>
+              <span class="desc">${t('wiz.type.' + ty.key + '.desc')}</span>
+            </button>
+          `).join('')}
+        </div>
+        <div class="wizard-nav">
+          <span></span>
+          <button class="btn btn-primary" id="wizNext1" ${!wizardData.siteType ? 'disabled' : ''}>${t('wiz.next')}</button>
+        </div>
+      </div>`;
+  }
+
+  else if (wizardStep === 2){
+    const isStore = wizardData.siteType === 'store';
+    const isBooking = wizardData.siteType === 'booking';
+    html = `
+      <div class="wizard-step">
+        <h2>${t('wiz.step2.title')}</h2>
+        <p class="wizard-sub">${t('wiz.step2.sub')}</p>
+        ${isStore ? `
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:10px;color:var(--ink-soft)">${t('wiz.productCount')}</label>
+          <div class="qty-stepper">
+            <button class="qty-btn" id="qtyMinus">−</button>
+            <span class="qty-value" id="qtyValue">${wizardData.productCount}</span>
+            <button class="qty-btn" id="qtyPlus">+</button>
+          </div>
+          <div class="field">
+            <label>${t('wiz.jobType')}</label>
+            <input type="text" id="jobTypeInput" placeholder="${t('wiz.jobType.placeholder')}" value="${wizardData.jobType}">
+          </div>
+        ` : isBooking ? `
+          <div class="field">
+            <label>${t('wiz.serviceType')}</label>
+            <input type="text" id="serviceTypeInput" placeholder="${t('wiz.serviceType.placeholder')}" value="${wizardData.serviceType}">
+          </div>
+        ` : `
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:10px;color:var(--ink-soft)">${t('wiz.contentVolume')}</label>
+          <div class="radio-list">
+            ${['low','medium','high'].map(v => `
+              <div class="radio-item ${wizardData.contentVolume === v ? 'selected' : ''}">
+                <input type="radio" name="contentVolume" id="cv-${v}" value="${v}" ${wizardData.contentVolume === v ? 'checked' : ''}>
+                <label for="cv-${v}">${t('wiz.contentVolume.' + v)}</label>
+              </div>
+            `).join('')}
+          </div>
+        `}
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" id="wizBack2">${t('wiz.back')}</button>
+          <button class="btn btn-primary" id="wizNext2">${t('wiz.next')}</button>
+        </div>
+      </div>`;
+  }
+
+  else if (wizardStep === 3){
+    computeInfra();
+    html = `
+      <div class="wizard-step">
+        <h2>${t('wiz.step3.title')}</h2>
+        <p class="wizard-sub">${t('wiz.step3.sub')}</p>
+        <div class="summary-box">
+          <div class="summary-row"><span>${t('wiz.infra.recommended')}</span><span class="val">${t('wiz.infra.' + wizardData.infra)}</span></div>
+        </div>
+        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:10px;color:var(--ink-soft)">${t('wiz.needDomain')}</label>
+        <div class="radio-list">
+          <div class="radio-item ${wizardData.needDomain === true ? 'selected' : ''}">
+            <input type="radio" name="needDomain" id="dom-yes" ${wizardData.needDomain === true ? 'checked' : ''}>
+            <label for="dom-yes">${t('wiz.domainYes')}</label>
+          </div>
+          <div class="radio-item ${wizardData.needDomain === false ? 'selected' : ''}">
+            <input type="radio" name="needDomain" id="dom-no" ${wizardData.needDomain === false ? 'checked' : ''}>
+            <label for="dom-no">${t('wiz.domainNo')}</label>
+          </div>
+        </div>
+        ${wizardData.needDomain ? `
+          <label style="display:block;font-size:13px;font-weight:600;margin-bottom:10px;color:var(--ink-soft)">${t('wiz.domainType')}</label>
+          <div class="radio-list">
+            ${['.ir','.com'].map(ext => `
+              <div class="radio-item ${wizardData.domainExt === ext ? 'selected' : ''}">
+                <input type="radio" name="domainExt" id="ext-${ext}" ${wizardData.domainExt === ext ? 'checked' : ''}>
+                <label for="ext-${ext}">${ext} — ${fmt(PRICING.domain[ext])} ${currentLang === 'fa' ? 'تومان' : 'Toman'}</label>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" id="wizBack3">${t('wiz.back')}</button>
+          <button class="btn btn-primary" id="wizNext3" ${wizardData.needDomain === null ? 'disabled' : ''}>${t('wiz.next')}</button>
+        </div>
+      </div>`;
+  }
+
+  else if (wizardStep === 4){
+    html = `
+      <div class="wizard-step">
+        <h2>${t('wiz.step4.title')}</h2>
+        <p class="wizard-sub">${t('wiz.step4.sub')}</p>
+        <div class="option-grid">
+          <button class="option-card ${wizardData.packageType === 'designOnly' ? 'selected' : ''}" data-pkg="designOnly">
+            <span class="icon">✏️</span>
+            <span class="label">${t('wiz.pkg.designOnly')}</span>
+          </button>
+          <button class="option-card ${wizardData.packageType === 'full' ? 'selected' : ''}" data-pkg="full">
+            <span class="icon">🚀</span>
+            <span class="label">${t('wiz.pkg.full')}</span>
+          </button>
+        </div>
+        <div class="option-grid">
+          <button class="option-card ${wizardData.tier === 'standard' ? 'selected' : ''}" data-tier="standard">
+            <span class="label">${t('wiz.tier.standard')}</span>
+            <span class="desc">${t('wiz.tier.standard.desc')}</span>
+          </button>
+          <button class="option-card ${wizardData.tier === 'premium' ? 'selected' : ''}" data-tier="premium">
+            <span class="label">${t('wiz.tier.premium')}</span>
+            <span class="desc">${t('wiz.tier.premium.desc')}</span>
+          </button>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" id="wizBack4">${t('wiz.back')}</button>
+          <button class="btn btn-primary" id="wizNext4" ${(!wizardData.packageType || !wizardData.tier) ? 'disabled' : ''}>${t('wiz.viewPrice')}</button>
+        </div>
+      </div>`;
+  }
+
+  else if (wizardStep === 5){
+    const p = computePrice();
+    html = `
+      <div class="wizard-step">
+        <h2>${t('wiz.step5.title')}</h2>
+        <p class="wizard-sub">${t('wiz.step5.sub')}</p>
+        <div class="price-breakdown">
+          <div class="price-line"><span>${t('wiz.price.design')}</span><span>${fmt(p.designFee)}</span></div>
+          <div class="price-line"><span>${t('wiz.price.host')}</span><span>${fmt(p.hostFee)}</span></div>
+          ${wizardData.needDomain ? `<div class="price-line"><span>${t('wiz.price.domain')}</span><span>${fmt(p.domainFee)}</span></div>` : ''}
+          <div class="price-line"><span>${t('wiz.price.subtotal')}</span><span>${fmt(p.subtotal)}</span></div>
+          <div class="price-total-row">
+            <span class="price-total-label">${t('wiz.price.total')} <span class="discount-badge">${t('wiz.firstPurchase')} -5%</span></span>
+            <span><span class="price-original">${fmt(p.subtotal)}</span><span class="price-total-value">${fmt(p.total)}</span></span>
+          </div>
+        </div>
+        <div class="wizard-nav">
+          <button class="btn btn-ghost" id="wizBack5">${t('wiz.back')}</button>
+          <button class="btn btn-primary" id="wizNext5">${t('wiz.next')}</button>
+        </div>
+      </div>`;
+  }
+
+  else if (wizardStep === 6){
+    saveHistoryEntry();
+    html = `
+      <div class="wizard-step">
+        <h2>${t('wiz.final.title')}</h2>
+        <p class="wizard-sub">${t('wiz.final.sub')}</p>
+        <button class="btn btn-primary btn-full" id="downloadReportBtn">${t('wiz.download')}</button>
+        <a href="https://t.me/Iject_studio_Admin" target="_blank" rel="noopener" class="telegram-box" style="margin-top:14px;">
+          <span class="tg-icon">✈️</span>
+          <span class="tg-text"><strong>${t('wiz.telegramTitle')}</strong><span>@Iject_studio_Admin</span></span>
+        </a>
+        <div class="wizard-nav" style="margin-top:24px;">
+          <span></span>
+          <button class="btn btn-ghost" id="wizFinishBtn">${t('wiz.finish')}</button>
+        </div>
+      </div>`;
+  }
+
+  wizardContent.innerHTML = html;
+  attachStepListeners();
+}
+
+function attachStepListeners(){
+  if (wizardStep === 1){
+    document.querySelectorAll('[data-site-type]').forEach(btn => {
+      btn.addEventListener('click', () => { wizardData.siteType = btn.getAttribute('data-site-type'); renderWizardStep(); });
+    });
+    const nextBtn = document.getElementById('wizNext1');
+    if (nextBtn) nextBtn.addEventListener('click', () => { wizardStep = 2; renderWizardStep(); });
+  }
+  if (wizardStep === 2){
+    document.getElementById('wizBack2').addEventListener('click', () => { wizardStep = 1; renderWizardStep(); });
+    document.getElementById('wizNext2').addEventListener('click', () => {
+      if (wizardData.siteType === 'store'){
+        wizardData.jobType = document.getElementById('jobTypeInput').value.trim();
+      } else if (wizardData.siteType === 'booking'){
+        wizardData.serviceType = document.getElementById('serviceTypeInput').value.trim();
+      } else {
+        const checked = document.querySelector('input[name="contentVolume"]:checked');
+        if (checked) wizardData.contentVolume = checked.value;
+      }
+      wizardStep = 3; renderWizardStep();
+    });
+    const qtyMinus = document.getElementById('qtyMinus');
+    const qtyPlus = document.getElementById('qtyPlus');
+    if (qtyMinus) qtyMinus.addEventListener('click', () => {
+      wizardData.productCount = Math.max(1, wizardData.productCount - 10);
+      document.getElementById('qtyValue').textContent = wizardData.productCount;
+    });
+    if (qtyPlus) qtyPlus.addEventListener('click', () => {
+      wizardData.productCount = Math.min(5000, wizardData.productCount + 10);
+      document.getElementById('qtyValue').textContent = wizardData.productCount;
+    });
+    document.querySelectorAll('input[name="contentVolume"]').forEach(r => {
+      r.addEventListener('change', () => {
+        wizardData.contentVolume = r.value;
+        document.querySelectorAll('.radio-item').forEach(item => item.classList.remove('selected'));
+        r.closest('.radio-item').classList.add('selected');
+      });
+    });
+  }
+  if (wizardStep === 3){
+    document.getElementById('wizBack3').addEventListener('click', () => { wizardStep = 2; renderWizardStep(); });
+    const nextBtn = document.getElementById('wizNext3');
+    if (nextBtn) nextBtn.addEventListener('click', () => { wizardStep = 4; renderWizardStep(); });
+    const domYes = document.getElementById('dom-yes');
+    const domNo = document.getElementById('dom-no');
+    if (domYes) domYes.addEventListener('change', () => { wizardData.needDomain = true; renderWizardStep(); });
+    if (domNo) domNo.addEventListener('change', () => { wizardData.needDomain = false; renderWizardStep(); });
+    ['.ir','.com'].forEach(ext => {
+      const el = document.getElementById('ext-' + ext);
+      if (el) el.addEventListener('change', () => { wizardData.domainExt = ext; renderWizardStep(); });
+    });
+  }
+  if (wizardStep === 4){
+    document.getElementById('wizBack4').addEventListener('click', () => { wizardStep = 3; renderWizardStep(); });
+    document.querySelectorAll('[data-pkg]').forEach(btn => {
+      btn.addEventListener('click', () => { wizardData.packageType = btn.getAttribute('data-pkg'); renderWizardStep(); });
+    });
+    document.querySelectorAll('[data-tier]').forEach(btn => {
+      btn.addEventListener('click', () => { wizardData.tier = btn.getAttribute('data-tier'); renderWizardStep(); });
+    });
+    const nextBtn = document.getElementById('wizNext4');
+    if (nextBtn) nextBtn.addEventListener('click', () => { wizardStep = 5; renderWizardStep(); });
+  }
+  if (wizardStep === 5){
+    document.getElementById('wizBack5').addEventListener('click', () => { wizardStep = 4; renderWizardStep(); });
+    document.getElementById('wizNext5').addEventListener('click', () => { wizardStep = 6; renderWizardStep(); });
+  }
+  if (wizardStep === 6){
+    document.getElementById('downloadReportBtn').addEventListener('click', generateAndDownloadPDF);
+    document.getElementById('wizFinishBtn').addEventListener('click', () => { closeModal(wizardOverlay); wizardOpen = false; });
+  }
+}
+
+/* =============== HISTORY (localStorage) =============== */
+function saveHistoryEntry(){
+  const history = JSON.parse(localStorage.getItem('iject_history') || '[]');
+  const p = computePrice();
+  history.unshift({
+    date: new Date().toISOString(),
+    siteType: wizardData.siteType,
+    packageType: wizardData.packageType,
+    tier: wizardData.tier,
+    total: p.total
+  });
+  localStorage.setItem('iject_history', JSON.stringify(history.slice(0, 30)));
+}
+
+function renderHistoryList(){
+  const el = document.getElementById('historyList');
+  if (!el) return;
+  const history = JSON.parse(localStorage.getItem('iject_history') || '[]');
+  if (history.length === 0){
+    el.innerHTML = `<div class="history-empty">${t('history.empty')}</div>`;
+    return;
+  }
+  el.innerHTML = history.map(h => {
+    const d = new Date(h.date);
+    const dateStr = d.toLocaleDateString(currentLang === 'fa' ? 'fa-IR' : 'en-US');
+    return `
+      <div class="history-item">
+        <div class="h-top"><span>${dateStr}</span><span>${t('wiz.tier.' + h.tier)}</span></div>
+        <div class="h-title">${t('types.' + h.siteType)}</div>
+        <div class="h-price">${fmt(h.total)} ${currentLang === 'fa' ? 'تومان' : 'Toman'}</div>
+      </div>`;
+  }).join('');
+}
+
+/* =============== PDF GENERATION =============== */
+async function generateAndDownloadPDF(){
+  const btn = document.getElementById('downloadReportBtn');
+  const originalText = btn.textContent;
+  btn.textContent = currentLang === 'fa' ? 'در حال آماده‌سازی...' : 'Preparing...';
+  btn.disabled = true;
+
+  const user = JSON.parse(localStorage.getItem('iject_user') || '{}');
+  const p = computePrice();
+  const isFa = currentLang === 'fa';
+
+  const pdfSource = document.getElementById('pdfSource');
+  pdfSource.innerHTML = `
+    <div class="pdf-page" id="pdfPage" dir="${isFa ? 'rtl' : 'ltr'}" style="font-family:${isFa ? "'Vazirmatn'" : "'Space Grotesk'"}, sans-serif;">
+      <div class="pdf-brand">IJECT <span>Studio</span></div>
+      <div class="pdf-sub">${t('pdf.title')} — ${new Date().toLocaleDateString(isFa ? 'fa-IR' : 'en-US')}</div>
+
+      <div class="pdf-section-title">${t('pdf.clientInfo')}</div>
+      <div class="pdf-row"><span class="k">${t('pdf.name')}</span><span class="v">${user.firstName || ''} ${user.lastName || ''}</span></div>
+      <div class="pdf-row"><span class="k">${t('pdf.phone')}</span><span class="v" style="direction:ltr;display:inline-block;">${user.phone || ''}</span></div>
+      <div class="pdf-row"><span class="k">${t('pdf.email')}</span><span class="v" style="direction:ltr;display:inline-block;">${user.email || ''}</span></div>
+      <div class="pdf-row"><span class="k">${t('pdf.nationalId')}</span><span class="v" style="direction:ltr;display:inline-block;">${user.nationalId || ''}</span></div>
+
+      <div class="pdf-section-title">${t('pdf.projectInfo')}</div>
+      <div class="pdf-row"><span class="k">${t('pdf.siteType')}</span><span class="v">${t('types.' + wizardData.siteType)}</span></div>
+      <div class="pdf-row"><span class="k">${t('pdf.package')}</span><span class="v">${t('wiz.pkg.' + wizardData.packageType)} — ${t('wiz.tier.' + wizardData.tier)}</span></div>
+      <div class="pdf-row"><span class="k">${t('pdf.infra')}</span><span class="v">${t('wiz.infra.' + wizardData.infra)}</span></div>
+      ${wizardData.needDomain ? `<div class="pdf-row"><span class="k">${t('pdf.domain')}</span><span class="v">${wizardData.domainExt}</span></div>` : ''}
+
+      <div class="pdf-section-title">${t('pdf.priceInfo')}</div>
+      <div class="pdf-row"><span class="k">${t('wiz.price.design')}</span><span class="v">${fmt(p.designFee)}</span></div>
+      <div class="pdf-row"><span class="k">${t('wiz.price.host')}</span><span class="v">${fmt(p.hostFee)}</span></div>
+      ${wizardData.needDomain ? `<div class="pdf-row"><span class="k">${t('wiz.price.domain')}</span><span class="v">${fmt(p.domainFee)}</span></div>` : ''}
+      <div class="pdf-row"><span class="k">${t('wiz.price.discount')} (5%)</span><span class="v">-${fmt(p.discount)}</span></div>
+      <div class="pdf-total"><span>${t('pdf.total')}</span><span>${fmt(p.total)} ${isFa ? 'تومان' : 'Toman'}</span></div>
+
+      <div class="pdf-watermark">IJECT Studio · Verified Estimate · ${Date.now()}</div>
+      <div class="pdf-footer">IJECT <span>Studio</span></div>
+    </div>
+  `;
+
+  // Ensure web fonts are fully loaded before rasterizing, to avoid any layout/font glitch in the exported image
+  try { await document.fonts.ready; } catch(e){}
+  await new Promise(r => setTimeout(r, 150));
+  const pageEl = document.getElementById('pdfPage');
+
+  let canvas = null;
+  try {
+    canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+  } catch(e){ canvas = null; }
+
+  if (canvas){
+    try {
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'pt', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+      const imgW = canvas.width * ratio;
+      const imgH = canvas.height * ratio;
+      pdf.addImage(imgData, 'PNG', (pageWidth - imgW) / 2, 0, imgW, imgH);
+      pdf.save('IJECT-Studio-Estimate.pdf');
+    } catch(e){
+      // fallback: same canvas, download as PNG image directly if PDF assembly fails
+      try {
+        const link = document.createElement('a');
+        link.download = 'IJECT-Studio-Estimate.png';
+        link.href = canvas.toDataURL('image/png', 1.0);
+        link.click();
+      } catch(e2){ /* give up silently, button state is still restored below */ }
+    }
+  }
+
+  pdfSource.innerHTML = '';
+  btn.textContent = originalText;
+  btn.disabled = false;
+}
+
+/* =============== HISTORY BUTTON (add small trigger in topbar via long-press-free simple approach) =============== */
+// Add a lightweight history entry point next to auth button when logged in
+function ensureHistoryTrigger(){
+  if (!isLoggedIn) return;
+  if (document.getElementById('historyTrigger')) return;
+  const actions = document.querySelector('.topbar-actions');
+  const btn = document.createElement('button');
+  btn.className = 'auth-btn';
+  btn.id = 'historyTrigger';
+  btn.style.background = 'transparent';
+  btn.style.color = 'var(--ink)';
+  btn.style.border = '1.5px solid var(--line)';
+  btn.textContent = t('nav.history');
+  btn.addEventListener('click', () => { openModal(document.getElementById('historyOverlay')); renderHistoryList(); });
+  actions.insertBefore(btn, document.getElementById('authBtn'));
+}
+document.getElementById('historyCloseBtn').addEventListener('click', () => closeModal(document.getElementById('historyOverlay')));
+
+/* =============== INIT =============== */
+applyLang(currentLang);
+ensureHistoryTrigger();
+if (isLoggedIn){
+  document.getElementById('authBtnLabel').textContent = t('nav.start');
+}
+
+</script>
+</body>
+</html>
